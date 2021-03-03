@@ -27,7 +27,7 @@ bert-base-serving-start \
     -port 7006 \  # 端口号, 不要与其他程序冲突
     -port_out 7007 # 端口号
 
-bert-base-serving-start -model_dir /data1/zhousanfu/imo_v5 -bert_model_dir /data1/zhousanfu/multilingual_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/imo_v5 -mode CLASS -max_seq_len 512 -port 5575 -port_out 5576
+bert-base-serving-start -model_dir /data1/zhousanfu/imo_v1 -bert_model_dir /data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/imo_v1 -mode CLASS -max_seq_len 128 -port 5575 -port_out 5576
 ```
 
 ## 3.2模型压缩
@@ -39,7 +39,7 @@ python freeze_graph.py \
     -max_seq_len=128 \  # 序列长度, 需要与训练时 max_seq_length 参书相同
     -num_labels=3  # label数量
 
-python3 /home/zhousanfu/bert_demo/freeze_graph.py -bert_model_dir=/data1/zhousanfu/multilingual_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/imo_v5 -max_seq_len=512 -num_labels=2
+python3 /home/zhousanfu/bert_demo/freeze_graph.py -bert_model_dir=/data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/imo_v1 -max_seq_len=128 -num_labels=2
 ```
 
 ## 3.3部署测试调用
@@ -89,6 +89,7 @@ python3 run_classifier.py \
 --do_train=true \    #是否训练
 --do_eval=true  \    #是否验证
 --do_predict=false \  #是否预测（对应test）
+--do_lower_case=false \
 --data_dir=$DATA_DIR \ 
 --vocab_file=$BERT_BASE_DIR/vocab.txt \
 --bert_config_file=$BERT_BASE_DIR/bert_config.json \
@@ -99,7 +100,20 @@ python3 run_classifier.py \
 --num_train_epochs=15 \
 --output_dir=./mymodel #输出目录
 
-python3 /home/zhousanfu/bert_demo/run_classifier.py --task_name=imodis --do_train=True --do_lower_case=True --do_eval=True --data_dir=/data1/zhousanfu/imo_v5 --vocab_file=/data1/zhousanfu/multilingual_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/multilingual_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/multilingual_L-12_H-768_A-12/bert_model.ckpt --max_seq_length=512 --output_dir=/data1/zhousanfu/imo_v5
+python3 /home/zhousanfu/bert_demo/run_classifier.py 
+--task_name=imodis 
+--do_train=True 
+--do_lower_case=False 
+--do_eval=True 
+--data_dir=/data1/zhousanfu/imo_v1 
+--vocab_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/vocab.txt 
+--bert_config_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_config.json 
+--init_checkpoint=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_model.ckpt 
+--train_batch_size=32 
+--learning_rate=5e-5 
+--num_train_epochs=3.0 
+--max_seq_length=128 
+--output_dir=/data1/zhousanfu/imo_v1
 ```
 
 ##　3.7预测（测试）：
@@ -117,6 +131,8 @@ python3 run_classifier.py \
   --init_checkpoint=$TRAINED_CLASSIFIER \
   --max_seq_length=512 \
   --output_dir=./mymodel
+
+python3 /home/zhousanfu/bert_demo/run_classifier.py --task_name=imodis --do_predict=True --do_lower_case=False --data_dir=/data1/zhousanfu/imo_v1 --vocab_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_model.ckpt --max_seq_length=128 --output_dir=/data1/zhousanfu/imo_v1
 ```
 
 ## 3.8 TF-serving 部署模型[https://blog.csdn.net/qq_42693848/article/details/107235688]
