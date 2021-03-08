@@ -15,57 +15,10 @@ extract_features.py-提取特征向量的
 
 
 # 三、运行
-## 3.1服务部署(bert-base)
-```
-pip install bert-base==0.0.7 -i https://pypi.python.org/simple
-bert-base-serving-start \
-    -model_dir "训练好的模型路径" \
-    -bert_model_dir "bert预训练模型路径" \
-    -model_pb_dir "classification_model.pb文件路径" \
-    -mode CLASS \  # 模式, 咱们是分类所以用CLASS
-    -max_seq_len 128 \  # 序列长度与上边保持一致
-    -port 7006 \  # 端口号, 不要与其他程序冲突
-    -port_out 7007 # 端口号
 
-bert-base-serving-start -model_dir /data1/zhousanfu/imo_v1 -bert_model_dir /data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/imo_v1 -mode CLASS -max_seq_len 512 -port 5575 -port_out 5576
-bert-base-serving-start -model_dir /data1/zhousanfu/imo_v1 -bert_model_dir /data1/zhousanfu/chinese_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/hello_v1 -mode CLASS -max_seq_len 512 -port 5575 -port_out 5576
-```
-
-## 3.2模型压缩
-> 运行后会在输出文件夹中多出一个 classification_model.pb 文件, 就是压缩后的模型
-```
-python freeze_graph.py \
-    -bert_model_dir="bert预训练模型地址" \
-    -model_dir="模型输出地址(和上边模型训练输出地址一样即可)" \
-    -max_seq_len=128 \  # 序列长度, 需要与训练时 max_seq_length 参书相同
-    -num_labels=3  # label数量
-
-python3 /home/zhousanfu/bert_classifier/freeze_graph.py -bert_model_dir=/data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/hello_v1 -max_seq_len=512 -num_labels=2
-python3 /home/zhousanfu/bert_classifier/freeze_graph.py -bert_model_dir=/data1/zhousanfu/chinese_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/hello_v1 -max_seq_len=512 -num_labels=15
-```
-
-## 3.3部署测试调用
-```
-from bert_base.client import BertClient
-str1="我爱北京天安门"
-str2 = "哈哈哈哈"
-with BertClient(show_server_config=False, check_version=False, check_length=False, mode="CLASS", port=5575, port_out=5576) as bc:
-    res = bc.encode([str1, str2])
-print(res)
-[{'pred_label': ['2', '1'], 'score': [0.9999899864196777, 0.9999299049377441]}]
-```
-
-## 3.4报错bert_base/server/http.py：
-```
-sudo pip install flask 
-sudo pip install flask_compress
-sudo pip install flask_cors
-sudo pip install flask_json
-```
-
-## 3.5 bert运行：
-### run_classifier.py 解说[https://blog.csdn.net/weixin_41845265/article/details/107071939]
-### 最全详细：[https://blog.csdn.net/weixin_43320501/article/details/93894946?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control]
+## 3.1训练：
+run_classifier.py 解说[https://blog.csdn.net/weixin_41845265/article/details/107071939]
+最全详细：[https://blog.csdn.net/weixin_43320501/article/details/93894946?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control]
 ```
 checkpoint 记录可用的模型信息
 eval_results.txt 验证集的结果信息
@@ -80,8 +33,6 @@ model.ckpt-2250.meta 记录完整的计算图结构
 predict.tf_record 预测的二进制文件
 test_results.tsv 使用预测后生成的预测结果
 ```
-
-## 3.6训练：
 ```
 export BERT_BASE_DIR=./chinese_L-12_H-768_A-12#这里是存放中文模型的路径
 export DATA_DIR=./data  #这里是存放数据的路径
@@ -101,10 +52,48 @@ python3 run_classifier.py \
 --learning_rate=2e-5 \
 --num_train_epochs=15 \
 --output_dir=./mymodel #输出目录
+```
 
-python3 /home/zhousanfu/bert_classifier/run_classifier.py --task_name=imodis --do_train=True --do_eval=True --do_lower_case=false --data_dir=/data1/zhousanfu/imo_v1 --vocab_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_model.ckpt --train_batch_size=32 --learning_rate=2e-5 --num_train_epochs=5.0 --max_seq_length=512 --output_dir=/data1/zhousanfu/imo_v1
+## 3.2模型压缩
+> 运行后会在输出文件夹中多出一个 classification_model.pb 文件, 就是压缩后的模型
+```
+python freeze_graph.py \
+    -bert_model_dir="bert预训练模型地址" \
+    -model_dir="模型输出地址(和上边模型训练输出地址一样即可)" \
+    -max_seq_len=128 \  # 序列长度, 需要与训练时 max_seq_length 参书相同
+    -num_labels=3  # label数量
+```
 
-python3 /home/zhousanfu/bert_classifier/run_classifier.py --task_name=hello --do_train=True --do_eval=True --do_lower_case=True --data_dir=/data1/zhousanfu/hello_v1 --vocab_file=/data1/zhousanfu/chinese_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/chinese_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/chinese_L-12_H-768_A-12/bert_model.ckpt --train_batch_size=32 --learning_rate=2e-5 --num_train_epochs=5.0 --max_seq_length=512 --output_dir=/data1/zhousanfu/hello_v1
+## 3.3服务部署(bert-base)
+```
+pip install bert-base==0.0.7 -i https://pypi.python.org/simple
+bert-base-serving-start \
+    -model_dir "训练好的模型路径" \
+    -bert_model_dir "bert预训练模型路径" \
+    -model_pb_dir "classification_model.pb文件路径" \
+    -mode CLASS \  # 模式, 咱们是分类所以用CLASS
+    -max_seq_len 128 \  # 序列长度与上边保持一致
+    -port 7006 \  # 端口号, 不要与其他程序冲突
+    -port_out 7007 # 端口号
+```
+
+## 3.4部署测试调用
+```
+from bert_base.client import BertClient
+str1="我爱北京天安门"
+str2 = "哈哈哈哈"
+with BertClient(show_server_config=False, check_version=False, check_length=False, mode="CLASS", port=5575, port_out=5576) as bc:
+    res = bc.encode([str1, str2])
+print(res)
+[{'pred_label': ['2', '1'], 'score': [0.9999899864196777, 0.9999299049377441]}]
+```
+
+## 3.5报错bert_base/server/http.py：
+```
+sudo pip install flask 
+sudo pip install flask_compress
+sudo pip install flask_cors
+sudo pip install flask_json
 ```
 
 ##　3.7预测（测试）：
@@ -126,7 +115,7 @@ python3 run_classifier.py \
 python3 /home/zhousanfu/bert_classifier/run_classifier.py --task_name=imodis --do_predict=True --do_lower_case=False --data_dir=/data1/zhousanfu/imo_v1 --vocab_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_model.ckpt --max_seq_length=128 --output_dir=/data1/zhousanfu/imo_v7
 ```
 
-## 3.8 TF-serving 部署模型[https://blog.csdn.net/qq_42693848/article/details/107235688]
+## 3.8 另一种服务TF-serving 部署模型[https://blog.csdn.net/qq_42693848/article/details/107235688]
 -(https://blog.csdn.net/JerryZhang__/article/details/85107506?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.control)
 > 使用docker下载tfserving镜像
 ```
