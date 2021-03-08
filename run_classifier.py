@@ -207,8 +207,8 @@ class DataProcessor(object):
 
 
 
-class WeiboProcessor(DataProcessor):
-  """Processor for the WeiBo data set ."""
+class HelloDisProcessor(DataProcessor):
+  """Processor for the HelloDis data set ."""
 
   def get_train_examples(self, data_dir):
     """See base class."""
@@ -227,7 +227,7 @@ class WeiboProcessor(DataProcessor):
 
   def get_labels(self):
     """See base class."""
-    return ["0", "1"]
+    return ['87817666207749','87817477304325','87817762996229','87816670273541','87817075023877','87817258192901','87817314312197','87817398939653','87817539981317','87816876503045','87817360879621','87816735748101']
 
   def _create_examples(self, lines, set_type):
     """Creates examples for the training and dev sets."""
