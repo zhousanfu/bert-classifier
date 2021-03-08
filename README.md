@@ -27,7 +27,8 @@ bert-base-serving-start \
     -port 7006 \  # 端口号, 不要与其他程序冲突
     -port_out 7007 # 端口号
 
-bert-base-serving-start -model_dir /data1/zhousanfu/imo_v1 -bert_model_dir /data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/imo_v1 -mode CLASS -max_seq_len 128 -port 5575 -port_out 5576
+bert-base-serving-start -model_dir /data1/zhousanfu/imo_v1 -bert_model_dir /data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/imo_v1 -mode CLASS -max_seq_len 512 -port 5575 -port_out 5576
+bert-base-serving-start -model_dir /data1/zhousanfu/imo_v1 -bert_model_dir /data1/zhousanfu/chinese_L-12_H-768_A-12 -model_pb_dir /data1/zhousanfu/hello_v1 -mode CLASS -max_seq_len 512 -port 5575 -port_out 5576
 ```
 
 ## 3.2模型压缩
@@ -39,7 +40,8 @@ python freeze_graph.py \
     -max_seq_len=128 \  # 序列长度, 需要与训练时 max_seq_length 参书相同
     -num_labels=3  # label数量
 
-python3 /home/zhousanfu/bert_classifier/freeze_graph.py -bert_model_dir=/data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/imo_v1 -max_seq_len=512 -num_labels=2
+python3 /home/zhousanfu/bert_classifier/freeze_graph.py -bert_model_dir=/data1/zhousanfu/multi_cased_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/hello_v1 -max_seq_len=512 -num_labels=2
+python3 /home/zhousanfu/bert_classifier/freeze_graph.py -bert_model_dir=/data1/zhousanfu/chinese_L-12_H-768_A-12 -model_dir=/data1/zhousanfu/hello_v1 -max_seq_len=512 -num_labels=15
 ```
 
 ## 3.3部署测试调用
@@ -102,7 +104,7 @@ python3 run_classifier.py \
 
 python3 /home/zhousanfu/bert_classifier/run_classifier.py --task_name=imodis --do_train=True --do_eval=True --do_lower_case=false --data_dir=/data1/zhousanfu/imo_v1 --vocab_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/multi_cased_L-12_H-768_A-12/bert_model.ckpt --train_batch_size=32 --learning_rate=2e-5 --num_train_epochs=5.0 --max_seq_length=512 --output_dir=/data1/zhousanfu/imo_v1
 
-python3 /home/zhousanfu/bert_classifier/run_classifier.py --task_name=hello --do_train=True --do_eval=True --do_lower_case=false --data_dir=/data1/zhousanfu/hello_v1 --vocab_file=/data1/zhousanfu/chinese_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/chinese_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/chinese_L-12_H-768_A-12/bert_model.ckpt --train_batch_size=32 --learning_rate=2e-5 --num_train_epochs=5.0 --max_seq_length=512 --output_dir=/data1/zhousanfu/hello_v1
+python3 /home/zhousanfu/bert_classifier/run_classifier.py --task_name=hello --do_train=True --do_eval=True --do_lower_case=True --data_dir=/data1/zhousanfu/hello_v1 --vocab_file=/data1/zhousanfu/chinese_L-12_H-768_A-12/vocab.txt --bert_config_file=/data1/zhousanfu/chinese_L-12_H-768_A-12/bert_config.json --init_checkpoint=/data1/zhousanfu/chinese_L-12_H-768_A-12/bert_model.ckpt --train_batch_size=32 --learning_rate=2e-5 --num_train_epochs=5.0 --max_seq_length=512 --output_dir=/data1/zhousanfu/hello_v1
 ```
 
 ##　3.7预测（测试）：
