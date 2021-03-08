@@ -26,7 +26,7 @@ import optimization
 import tokenization
 import tensorflow as tf
 import pickle
-import pandas as pd
+# import pandas as pd
 
 flags = tf.flags
 
@@ -207,7 +207,7 @@ class DataProcessor(object):
 
 
 
-class HelloDisProcessor(DataProcessor):
+class HelloProcessor(DataProcessor):
   """Processor for the HelloDis data set ."""
 
   def get_train_examples(self, data_dir):
@@ -926,7 +926,7 @@ def main(_):
       "mnli": MnliProcessor,
       "mrpc": MrpcProcessor,
       "xnli": XnliProcessor,
-      "weibo": WeiboProcessor,
+      "hello": HelloProcessor,
       "imodis": ImoDisProcessor,
   }
 
